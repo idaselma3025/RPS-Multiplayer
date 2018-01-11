@@ -11,68 +11,65 @@
 
   var database = firebase.database();
 
-  var name1=1;
-  var name2=2;
+  var name1;
+  var name2;
   var choices =["rock","paper","scissors"]
+  var hasPlayer1;
 
+  
 //function to render names based on db values
 database.ref("players").on("value",function(snapshot){
   name1=snapshot.child("1/name").val();
   name2=snapshot.child("2/name").val();
+  console.log("name1: "+name1 +" name2 :"+name2);
+  console.log("hasPlayer1: "+hasPlayer1)
   $("#name1-display").text(name1);
   $("#name2-display").text(name2);
-  if(name1===1){
+  if(name1===null){
     $("#name1-display").empty();
   }
-  if(name2===2){
+  if(name2===null){
     $("#name2-display").empty();
   }
 });
 
-//function to add player name to db
- $("#add-player").on("click",function(){
-  if(name1===1){
-    //collect name info in name1 variable
-    name1=$("#name-input").val().trim();
-    //display choices buttons
-    displayChoices1();
-    //save name to db
-    database.ref("players/1").set({
-      name:name1,
-      choice:"blank",
-    })
-  }
-else if(name2===2){
-    //collect name info in name2 variable
-    name2=$("#name-input").val().trim();
-    //display choices buttons
-    displayChoices2();
-    //save name to db
-    database.ref("players/2").set({
-      name:name2,
-      choice:"blank",
-    })
-  };
- 	console.log(name1);
-  console.log(name2);
- });
+database.ref().on("value",function(snapshot){
+  hasPlayer1=snapshot.child("players/1").exists()
+})
 
-//function to remove player1 name from html and update db
- $("#remove-player1").on("click",function(){
-  $("#choices1-display").empty();
-  database.ref("players/1").set({
-      name:1,
-      choice:"blank",
+//function to add player names to db
+ $("#add-player").on("click",function(){
+    name=$("#name-input").val().trim();
+    if (hasPlayer1){
+       database.ref("players").child("2").set({
+          name:name,
+          wins:0,
+          losses:0,
     })
-    });
+     }
+  
+  if (!hasPlayer1){
+    database.ref("players").child("1").set({
+            name:name,
+            wins:0,
+            losses:0
+      }) 
+  }
+});
+
+// function to remove player1 name from html and update db
+$("#remove-player1").on("click",function(){
+ firebase.database().ref("players/1").remove();
+ $("#choices1-display").empty();
+ $("#name1-display").empty();
+});
 
 //function to remove player2 name from html and update db
   $("#remove-player2").on("click",function(){
+    firebase.database().ref("players/2").remove();
     $("#choices2-display").empty();
-  database.ref("players/2").set({
-      name:2,
-      choice:"blank",
-    })
+    $("#name2-display").empty();
+
 });
 
 //functions to display rps buttons
@@ -123,3 +120,4 @@ $(document).on("click",".choice2",function(){
   })
   console.log(choiceSelect);
 })
+
