@@ -15,10 +15,15 @@
   var name2;
   var choices =["rock","paper","scissors"]
   var hasPlayer1;
+  var hasPlayer2;
+  var childKey;
+  var turns;
 
-  
 //function to render names based on db values
 database.ref("players").on("value",function(snapshot){
+  turns=snapshot.child("turns/turns").val();
+  hasPlayer1=snapshot.child("1").val();
+  hasPlayer2=snapshot.child("2").val();
   name1=snapshot.child("1/name").val();
   name2=snapshot.child("2/name").val();
   console.log("name1: "+name1 +" name2 :"+name2);
@@ -33,9 +38,6 @@ database.ref("players").on("value",function(snapshot){
   }
 });
 
-database.ref().on("value",function(snapshot){
-  hasPlayer1=snapshot.child("players/1").exists()
-})
 
 //function to add player names to db
  $("#add-player").on("click",function(){
@@ -45,6 +47,7 @@ database.ref().on("value",function(snapshot){
           name:name,
           wins:0,
           losses:0,
+        
     })
      }
   
@@ -53,8 +56,15 @@ database.ref().on("value",function(snapshot){
             name:name,
             wins:0,
             losses:0
+        
       }) 
   }
+  if(hasPlayer1&&hasPlayer2){
+    database.ref("players").child("turns").set({
+      turns:1
+    })
+    displayChoices1();
+}
 });
 
 // function to remove player1 name from html and update db
@@ -75,30 +85,20 @@ $("#remove-player1").on("click",function(){
 //functions to display rps buttons
 function displayChoices1(){
   for (var i = 0; i < choices.length; i++) {
-
           var choiceBtn = $("<button>");
-          
           choiceBtn.addClass("choice1 btn btn-primary");
-         
-          choiceBtn.attr("data-name", choices[i]);
-         
+          choiceBtn.attr("data-name", choices[i]);         
           choiceBtn.text(choices[i]);
-          
           $("#choices1-display").append(choiceBtn);
         }
       };
 function displayChoices2(){
   for (var i = 0; i < choices.length; i++) {
-
-          var choiceBtn = $("<button>");
-          
+          var choiceBtn = $("<button>");          
           choiceBtn.addClass("choice2 btn btn-primary");
-         
           choiceBtn.attr("data-name", choices[i]);
-         
           choiceBtn.text(choices[i]);
-          
-          $("#choices2-display").append(choiceBtn);
+         $("#choices2-display").append(choiceBtn);
         }
 };
 
@@ -108,6 +108,13 @@ $(document).on("click",".choice1",function(){
   database.ref("players/1").set({
     name:name1,
     choice:choiceSelect,
+    losses:0,
+    wins:1
+  })
+   $("#choices1-display").empty();
+   $("choices1-display").text(choiceSelect);
+  database.ref("players/turns").set({
+    turns:2,
   })
   console.log(choiceSelect);
 })
