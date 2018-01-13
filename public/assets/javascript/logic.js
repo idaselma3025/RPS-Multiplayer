@@ -17,7 +17,9 @@
   var hasPlayer1;
   var hasPlayer2;
   var childKey;
-  var turns;
+  var turns={
+    turns:1
+  }
 
 //function to render names based on db values
 database.ref("players").on("value",function(snapshot){
@@ -60,9 +62,7 @@ database.ref("players").on("value",function(snapshot){
       }) 
   }
   if(hasPlayer1&&hasPlayer2){
-    database.ref("players").child("turns").set({
-      turns:1
-    })
+    database.ref().push(turns);
     displayChoices1();
 }
 });
@@ -101,7 +101,7 @@ function displayChoices2(){
          $("#choices2-display").append(choiceBtn);
         }
 };
-
+database.ref()
 //functions to save choice to db
 $(document).on("click",".choice1",function(){
   var choiceSelect = $(this).attr("data-name");
@@ -112,10 +112,7 @@ $(document).on("click",".choice1",function(){
     wins:1
   })
    $("#choices1-display").empty();
-   $("choices1-display").text(choiceSelect);
-  database.ref("players/turns").set({
-    turns:2,
-  })
+   $("#choices1-display").text(choiceSelect);
   console.log(choiceSelect);
 })
 
